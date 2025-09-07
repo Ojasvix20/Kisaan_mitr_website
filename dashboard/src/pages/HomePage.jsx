@@ -18,7 +18,11 @@ function HomePage() {
           mb: 5,
         }}
       >
-        <Typography className="greeting" variant="h2" sx={{ fontWeight: "bold" }}>
+        <Typography
+          className="greeting"
+          variant="h2"
+          sx={{ fontWeight: "bold" }}
+        >
           Welcome to Kisaan Mitr 🌱
         </Typography>
         <Typography variant="h6">Helping farmers with technology!</Typography>
@@ -28,11 +32,19 @@ function HomePage() {
       <FeatureCards />
 
       {/* 👇 2. Add the new Market Rates Chart section */}
-      <Box sx={{ padding: { xs: 2, sm: 20 } }}>
+      <Box sx={{ padding: { xs: 2, sm: 4 } }}>
         <Paper
           sx={{
+            // Add a responsive height for the container
+            height: { xs: 350, sm: 450 },
             padding: { xs: 1, sm: 2 },
-            backgroundColor: "rgba(1, 1, 1, 0.41)",
+            // Add flex properties to help center the chart
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+
+            // Keep the glassmorphism styles
+            backgroundColor: "rgba(0, 0, 0, 0.35)",
             backdropFilter: "blur(10px)",
             borderRadius: "16px",
             border: `1px solid rgba(255, 255, 255, 0.18)`,
@@ -41,7 +53,7 @@ function HomePage() {
           <MarketRatesChart />
         </Paper>
       </Box>
-      <BottomFooter/>
+      <BottomFooter />
     </>
   );
 }

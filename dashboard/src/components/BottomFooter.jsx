@@ -27,12 +27,25 @@ function BottomFooter() {
       <Grid container spacing={4} justifyContent="space-between">
         {/* Column 1: Brand and mission */}
         <Grid item xs={12} md={4}>
-          <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold" }}>
+          <Typography
+            variant="h5"
+            gutterBottom
+            sx={{
+              fontWeight: "bold",
+              color: "goldenrod",
+              textShadow: "0 0 10px black",
+            }}
+          >
             Kisaan Mitr 🌱
           </Typography>
-          <Typography variant="body2" sx={{ opacity: 0.8 }}>
-            Empowering farmers with modern technology to enhance crop yield and
-            profitability. Your trusted partner in agriculture.
+          <Typography variant="body2" sx={{ opacity: 0.8, maxWidth: "800px" }}>
+            Built for the modern farmer, Kisaan Mitr provides the essential
+            technological tools to thrive in today's agricultural landscape. Our
+            platform translates complex data into simple, actionable advice,
+            helping you increase your harvest, reduce waste, and adapt to
+            challenges. From AI-driven disease detection to live market rates,
+            we are committed to enhancing your profitability and empowering you
+            to cultivate a lasting legacy.
           </Typography>
         </Grid>
 
