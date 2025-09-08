@@ -18,11 +18,21 @@ import kharifImage from '../assets/images/Kharif.png';
 import zaidImage from '../assets/images/Zaid.jpg';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 
+// Step 1: Import Teachable Machine libraries
+import * as tmImage from "@teachablemachine/image";
+
 const cropTypes = [
   { key: "rabi", name: "Rabi Crop", image: rabiImage },
   { key: "kharif", name: "Kharif Crop", image: kharifImage },
   { key: "zaid", name: "Zaid Crop", image: zaidImage },
 ];
+
+// Step 2: Add your Teachable Machine model URLs here
+const modelURLs = {
+  rabi: "https://teachablemachine.withgoogle.com/models/FUsO0yiwP/",
+  kharif: "https://teachablemachine.withgoogle.com/models/la4j50EXt/",
+  zaid: "https://teachablemachine.withgoogle.com/models/EUob1v6Rw-/",
+};
 
 // This is the component that shows the file upload UI
 function ImageAnalyzer({ cropType, onBack }) {
@@ -44,24 +54,47 @@ function ImageAnalyzer({ cropType, onBack }) {
     }
   };
 
-  const handleAnalyzeClick = () => {
+  // Step 3: Update the handleAnalyzeClick function to be async
+  const handleAnalyzeClick = async () => {
     if (!selectedFile) return;
 
-    setLoading(true); // Start loading spinner
+    setLoading(true);
     setResult(null);
     setError(null);
 
-    // Simulate a 2.5-second processing delay
-    setTimeout(() => {
-      // Create your fake result here!
-      const fakeResult = {
-        disease: "Tomato Late Blight", // You can change this
-        confidence: "94.72", // You can change this
+    try {
+      // Get the correct model URL based on the selected cropType
+      const URL = modelURLs[cropType];
+      const modelURL = URL + "model.json";
+      const metadataURL = URL + "metadata.json";
+
+      // Load the model
+      const model = await tmImage.load(modelURL, metadataURL);
+
+      // Get the image element from the DOM to predict on
+      const imageElement = document.getElementById("uploaded-image-preview");
+      
+      // Make a prediction
+      const prediction = await model.predict(imageElement);
+
+      // Sort predictions by probability to find the best one
+      prediction.sort((a, b) => b.probability - a.probability);
+
+      // Create the result object from the top prediction
+      const topPrediction = prediction[0];
+      const analysisResult = {
+        disease: topPrediction.className,
+        confidence: (topPrediction.probability * 100).toFixed(2),
       };
 
-      setResult(fakeResult); // Show the fake result
+      setResult(analysisResult); // Show the real result
+
+    } catch (err) {
+      console.error("Analysis Error:", err);
+      setError("Failed to analyze the image. Please try again.");
+    } finally {
       setLoading(false); // Stop the loading spinner
-    }, 2500); // 2500 milliseconds = 2.5 seconds
+    }
   };
 
   return (
@@ -85,6 +118,7 @@ function ImageAnalyzer({ cropType, onBack }) {
       {preview && (
         <Box mt={2} mb={2}>
           <img
+            id="uploaded-image-preview" // Step 4: Add an ID to the image for prediction
             src={preview}
             alt="Selected crop"
             style={{ maxHeight: "200px", borderRadius: "8px" }}
@@ -145,7 +179,7 @@ function ImageAnalyzer({ cropType, onBack }) {
             sx={{ mt: 1 }}
           >
             <Typography variant="h6">
-              <strong>Disease:</strong> {result.disease.replace(/_/g, " ")}
+              <strong>Prediction:</strong> {result.disease.replace(/_/g, " ")}
             </Typography>
             <Typography variant="body1">
               <strong>Confidence:</strong> {result.confidence}%
@@ -157,11 +191,10 @@ function ImageAnalyzer({ cropType, onBack }) {
   );
 }
 
-// This is the main page component that shows the crop selection
+// NO CHANGES NEEDED FOR THE MAIN PAGE COMPONENT
 function CropAnalyzerPage() {
   const [selectedCropType, setSelectedCropType] = useState(null);
 
-  // Show the ImageAnalyzer component if a crop type has been selected
   if (selectedCropType) {
     return (
       <Box sx={{ paddingTop: "8rem", textAlign: "center", paddingX: "2rem" }}>
@@ -173,7 +206,6 @@ function CropAnalyzerPage() {
     );
   }
 
-  // Show the crop type selection UI by default
   return (
     <Box sx={{ paddingTop: "8rem", textAlign: "center", paddingX: "2rem" }}>
       <Typography
@@ -189,19 +221,18 @@ function CropAnalyzerPage() {
             <Card
               sx={{
                 marginTop:"40px",
-                height: "220px", // Gives the card a nice, uniform height
+                height: "220px",
                 borderRadius: "16px",
                 width:"350px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                // This is the key part:
                 backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${crop.image})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 transition: "transform 0.3s ease",
                 "&:hover": {
-                  transform: "scale(1.05)", // A nice hover effect
+                  transform: "scale(1.05)",
                 },
               }}
             >
@@ -215,7 +246,7 @@ function CropAnalyzerPage() {
                     sx={{
                       color: "white",
                       fontWeight: "bold",
-                      textShadow: "2px 2px 8px rgba(0,0,0,0.8)", // Adds shadow to text
+                      textShadow: "2px 2px 8px rgba(0,0,0,0.8)",
                     }}
                   >
                     {crop.name}
